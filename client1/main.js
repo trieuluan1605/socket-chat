@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const socket = io("http://localhost:3000"); // Đảm bảo đúng địa chỉ server
+  //   const socket = io("http://localhost:3000"); // Đảm bảo đúng địa chỉ server
+  const socket = io(process.env.SERVER_API_POINT); // Đảm bảo đúng địa chỉ server
 
   // Gửi thông điệp
   const form = document.querySelector(".message_form");
