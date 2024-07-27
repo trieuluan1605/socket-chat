@@ -17,11 +17,13 @@ const io = socketIO(server, {
 // Sử dụng middleware CORS
 app.use(cors());
 
+// Thiết lập router
+app.get("/", (req, res) => {
+  res.send("Hello world");
+});
+
 // Thiết lập socket
 setupSockets(io);
-
-// Cấu hình middleware và routes
-app.use(express.static(path.join(__dirname, "../client/public")));
 
 // Khởi động server
 const PORT = process.env.PORT || 3000;
