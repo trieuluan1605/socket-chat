@@ -18,13 +18,15 @@ import {
 
 const socket = io(`${process.env.NEXT_PUBLIC_SERVER_API_POINT}`);
 
-const ChatForm: React.FC<{
+interface ChatFormProps {
   user: {
     id: number;
     name: string;
     username: string;
   };
-}> = ({ user }) => {
+}
+
+const ChatForm: React.FC<ChatFormProps> = ({ user }) => {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<
     {

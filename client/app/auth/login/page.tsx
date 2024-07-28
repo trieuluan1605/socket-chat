@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import LoginForm from "@/components/login-form";
 
-const LoginPage: React.FC = () => {
+export default function LoginPage() {
   const router = useRouter();
   const userStored = localStorage.getItem("user");
 
@@ -24,6 +24,4 @@ const LoginPage: React.FC = () => {
   };
 
   return !userStored && <LoginForm onLogin={handleLogin} />;
-};
-
-export default LoginPage;
+}
