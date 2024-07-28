@@ -3,9 +3,10 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import NoSsr from "@/app/no-ssr";
 import LoginForm from "@/components/login-form";
 
-export default function LoginPage() {
+function LoginPage() {
   const router = useRouter();
   const userStored = localStorage.getItem("user");
 
@@ -25,3 +26,5 @@ export default function LoginPage() {
 
   return !userStored && <LoginForm onLogin={handleLogin} />;
 }
+
+export default NoSsr(LoginPage);
