@@ -1,21 +1,25 @@
 -- SQLite
 DROP TABLE users;
-CREATE TABLE
-  users (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    username TEXT,
-    password TEXT
-  );
-INSERT INTO users (name, username, password) VALUES ('Admin', 'admin', 'xxx');
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL
+);
+
+DROP TABLE rooms;
+CREATE TABLE IF NOT EXISTS rooms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL
+);
 
 DROP TABLE messages;
-CREATE TABLE
-  messages (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId INTEGER,
-    message TEXT,
-    createTime INTEGER,
-    updateTime INTEGER
-  );
-INSERT INTO messages (userId, message, createTime, updateTime) VALUES (1, 'Hello World', 1700000000000, 0);
+CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

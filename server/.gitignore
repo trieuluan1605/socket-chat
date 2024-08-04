@@ -3,6 +3,7 @@
 
 # dependencies
 /node_modules
+/dist
 package-lock.json
 
 # local env files
@@ -10,3 +11,4 @@ package-lock.json
 
 # local turso db
 local.db*
+*.sql

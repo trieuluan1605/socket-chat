@@ -6,9 +6,9 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import NoSsr from "@/app/no-ssr";
-import LoginForm from "@/components/login-form";
+import RegisterForm from "@/components/register-form";
 
-function LoginPage() {
+function RegisterPage() {
   const router = useRouter();
   const userStored = localStorage.getItem("user");
 
@@ -18,10 +18,13 @@ function LoginPage() {
     }
   }, [router, userStored]);
 
-  const handleLogin = async (form: { username: string; password: string }) => {
+  const handleRegister = async (form: {
+    username: string;
+    password: string;
+  }) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_API_POINT}/api/auth/login`,
+        `${process.env.NEXT_PUBLIC_SERVER_API_POINT}/api/auth/register`,
         {
           method: "POST",
           headers: {
@@ -32,19 +35,19 @@ function LoginPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Login failed");
+        throw new Error("Registration failed");
       }
 
-      const { user } = await response.json();
-      localStorage.setItem("user", JSON.stringify(user));
+      const data = await response.json();
+      localStorage.setItem("user", JSON.stringify(data));
       router.push("/");
     } catch (error) {
-      console.error("Failed to login:", error);
-      alert("Login failed. Please check your credentials.");
+      console.error("Failed to register:", error);
+      alert("Registration failed. Please try again.");
     }
   };
 
-  return !userStored && <LoginForm onLogin={handleLogin} />;
+  return !userStored && <RegisterForm onRegister={handleRegister} />;
 }
 
-export default NoSsr(LoginPage);
+export default NoSsr(RegisterPage);

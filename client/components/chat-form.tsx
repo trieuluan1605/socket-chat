@@ -1,9 +1,9 @@
 import React, {
   useState,
-  FormEvent,
   useEffect,
   useRef,
   ChangeEvent,
+  FormEvent,
 } from "react";
 import io from "socket.io-client";
 import {
@@ -16,83 +16,69 @@ import {
   Link,
 } from "@nextui-org/react";
 
-const socket = io(`${process.env.NEXT_PUBLIC_SERVER_API_POINT}`);
+// Ensure the socket connection is initialized
+const socket = io(process.env.NEXT_PUBLIC_SERVER_API_POINT!);
+
+interface Message {
+  name: string;
+  username: string;
+  content: string;
+  createTime: number;
+}
 
 interface ChatFormProps {
   user: {
-    id: number;
+    id: string;
     name: string;
     username: string;
   };
+  room: {
+    id: string;
+    name: string;
+  };
+  oldMessages: Message[];
 }
 
-const ChatForm: React.FC<ChatFormProps> = ({ user }) => {
-  const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<
-    {
-      userId: string;
-      name: string;
-      username: string;
-      message: string;
-      createTime: number;
-      updateTime: number;
-    }[]
-  >([]);
+const ChatForm: React.FC<ChatFormProps> = ({ user, room, oldMessages }) => {
+  const [content, setContent] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>(oldMessages);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    socket.on(
-      "chat history",
-      (
-        histories: {
-          userId: string;
-          name: string;
-          username: string;
-          message: string;
-          createTime: number;
-          updateTime: number;
-        }[],
-      ) => {
-        setMessages(histories);
-      },
-    );
+    // Listen for chat history of the room
+    socket.emit("join room", room.id);
+    setMessages(oldMessages);
 
-    socket.on("chat message", ({ user, message, createTime, updateTime }) => {
-      setMessages((prevMessages) => [
-        {
-          userId: user.id,
-          name: user.name,
-          username: user.username,
-          message,
-          createTime,
-          updateTime,
-        },
-        ...prevMessages,
-      ]);
+    // Listen for new chat messages in the room
+    socket.on("chat message", (data: Message) => {
+      setMessages((prevMessages) => [data, ...prevMessages]);
       if (audioRef.current) {
         audioRef.current.play();
       }
     });
 
+    // Clean up socket events on component unmount
     return () => {
       socket.off("chat history");
       socket.off("chat message");
     };
-  }, []);
+  }, [room]);
 
   const handleSendMessage = (event: FormEvent) => {
     event.preventDefault();
-    if (message.trim()) {
-      const data = { user, message };
+    if (content.trim()) {
+      const data = { room, user, content };
 
       socket.emit("chat message", data);
-      setMessage("");
+      setContent("");
     }
   };
 
   return (
     <Card style={{ width: "400px", padding: "20px", margin: "20px auto" }}>
-      <p style={{ marginBottom: "10px" }}>Send a Message</p>
+      <p style={{ marginBottom: "10px" }}>
+        [{room.name}#{room.id}] Send a Message
+      </p>
       <form onSubmit={handleSendMessage}>
         <Input
           fullWidth
@@ -101,12 +87,12 @@ const ChatForm: React.FC<ChatFormProps> = ({ user }) => {
           color="primary"
           placeholder="Type your message..."
           size="md"
-          value={message}
+          value={content}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setMessage(e.target.value)
+            setContent(e.target.value)
           }
         />
-        <Button className="mt-4" color="primary" onClick={handleSendMessage}>
+        <Button className="mt-4" color="primary" type="submit">
           Send
         </Button>
       </form>
@@ -119,7 +105,7 @@ const ChatForm: React.FC<ChatFormProps> = ({ user }) => {
             <b>
               <Link href={`/users/${msg.username}`}>{msg.name}:</Link>
             </b>{" "}
-            <span className="whitespace-normal">{msg.message}</span>
+            <span className="whitespace-normal">{msg.content}</span>
           </ListboxItem>
         ))}
       </Listbox>
